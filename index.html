@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Soulbearer"/>
+<title>Soulbearer</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:        #020408;
+    --ink-mid:    #0a1220;
+    --emerald:    #2d7a4a;
+    --emerald-bright: #4aab6d;
+    --emerald-dim: #1a4a2e;
+    --zircon:     #b8d4e8;
+    --zircon-dim: #5a8aaa;
+    --amber:      #d4890a;
+    --amber-warm: #f0a830;
+    --amber-glow: rgba(212,137,10,0.15);
+    --white-soft: #eef4f0;
+    --text-dim:   #7a9a8a;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--ink);
+    color: var(--white-soft);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Background atmosphere */
+  .bg {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 30%, #0a1e14 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 50% 80%, #080e18 0%, transparent 60%),
+      var(--ink);
+  }
+
+  /* Ambient emerald particle field */
+  .particles {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden;
+  }
+  .particle {
+    position: absolute; border-radius: 50%;
+    animation: float linear infinite;
+  }
+  @keyframes float {
+    0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 0.4; }
+    100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+  }
+
+  /* Vertical shimmer line */
+  .shimmer {
+    position: fixed; top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 1px; height: 100%;
+    background: linear-gradient(to bottom,
+      transparent 0%,
+      rgba(74,171,109,0.08) 20%,
+      rgba(212,137,10,0.18) 50%,
+      rgba(74,171,109,0.08) 80%,
+      transparent 100%);
+    z-index: 1;
+    animation: shimmer-breathe 6s ease-in-out infinite alternate;
+  }
+  @keyframes shimmer-breathe {
+    from { opacity: 0.5; }
+    to   { opacity: 1; }
+  }
+
+  /* Main layout */
+  .screen {
+    position: relative; z-index: 10;
+    width: 100%; height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: space-between;
+    padding: env(safe-area-inset-top, 3rem) 2rem env(safe-area-inset-bottom, 2.5rem);
+  }
+
+  /* ── TOP SECTION: Order identity ── */
+  .top {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 0;
+    animation: fadein 1.2s ease both;
+  }
+
+  /* Glyph SVG */
+  .glyph {
+    width: 120px; height: 60px;
+    margin-bottom: 1.2rem;
+    filter: drop-shadow(0 0 12px rgba(212,137,10,0.3)) drop-shadow(0 0 24px rgba(74,171,109,0.15));
+    animation: fadein 1.4s ease both, glyph-pulse 6s ease-in-out 2s infinite alternate;
+  }
+  @keyframes glyph-pulse {
+    from { filter: drop-shadow(0 0 8px rgba(212,137,10,0.2)) drop-shadow(0 0 16px rgba(74,171,109,0.1)); }
+    to   { filter: drop-shadow(0 0 20px rgba(212,137,10,0.5)) drop-shadow(0 0 40px rgba(74,171,109,0.25)); }
+  }
+
+  /* Order name */
+  .order-name {
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    font-size: clamp(1.4rem, 5vw, 1.8rem);
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--white-soft);
+    text-shadow: 0 0 30px rgba(212,137,10,0.4), 0 0 60px rgba(74,171,109,0.2);
+    animation: fadein 1.6s ease both;
+  }
+
+  /* Divider */
+  .divider {
+    display: flex; align-items: center; gap: 0.8rem;
+    margin: 1rem 0;
+    animation: fadein 1.8s ease both;
+  }
+  .divider-line {
+    width: 50px; height: 1px;
+    background: linear-gradient(to right, transparent, var(--emerald-dim));
+  }
+  .divider-line.right {
+    background: linear-gradient(to left, transparent, var(--emerald-dim));
+  }
+  .divider-diamond {
+    width: 5px; height: 5px;
+    background: var(--amber);
+    transform: rotate(45deg);
+    box-shadow: 0 0 8px rgba(212,137,10,0.8);
+  }
+
+  /* Surges label */
+  .surges {
+    font-family: 'Cinzel', serif;
+    font-weight: 300;
+    font-size: clamp(0.45rem, 1.5vw, 0.58rem);
+    letter-spacing: 0.3em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    animation: fadein 2s ease both;
+  }
+
+  /* ── MIDDLE SECTION: Daily oath ── */
+  .middle {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 1.5rem 0;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .oath-number {
+    font-family: 'Cinzel', serif;
+    font-weight: 300;
+    font-size: clamp(0.5rem, 1.5vw, 0.62rem);
+    letter-spacing: 0.3em;
+    color: var(--amber);
+    opacity: 0.7;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    animation: fadein 2s ease both;
+  }
+
+  .oath-wrap {
+    position: relative;
+    padding: 0 0.5rem;
+    animation: oath-rise 2s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  @keyframes oath-rise {
+    from { opacity: 0; transform: translateY(20px); filter: blur(5px); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+  }
+
+  .oath-text {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(1.25rem, 4.5vw, 1.75rem);
+    line-height: 1.75;
+    text-align: center;
+    color: var(--white-soft);
+    text-shadow:
+      0 0 40px rgba(74,171,109,0.08),
+      0 0 80px rgba(212,137,10,0.05);
+    animation: oath-rise 2s cubic-bezier(0.16,1,0.3,1) both,
+               text-breathe 7s ease-in-out 2.5s infinite alternate;
+  }
+
+  @keyframes text-breathe {
+    from { text-shadow: 0 0 30px rgba(74,171,109,0.06); }
+    to   { text-shadow: 0 0 60px rgba(74,171,109,0.12), 0 0 100px rgba(212,137,10,0.08); }
+  }
+
+  .oath-wrap::before {
+    content: '\201C';
+    position: absolute;
+    top: -0.5em; left: -0.2em;
+    font-size: 4em;
+    font-style: normal;
+    font-weight: 300;
+    color: var(--amber);
+    opacity: 0.08;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  /* ── BOTTOM SECTION: Date ── */
+  .bottom {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 0.8rem;
+    animation: fadein 2.5s ease both;
+  }
+
+  .bottom-divider {
+    width: 40px; height: 1px;
+    background: linear-gradient(to right, transparent, var(--emerald-dim), transparent);
+  }
+
+  .date-text {
+    font-family: 'Cinzel', serif;
+    font-weight: 300;
+    font-size: clamp(0.48rem, 1.4vw, 0.6rem);
+    letter-spacing: 0.28em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .first-ideal {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(0.55rem, 1.6vw, 0.68rem);
+    letter-spacing: 0.08em;
+    color: var(--emerald-dim);
+    opacity: 0.6;
+    text-align: center;
+  }
+
+  @keyframes fadein {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Corner marks */
+  .corner {
+    position: fixed; width: 44px; height: 44px;
+    z-index: 5; pointer-events: none; opacity: 0.15;
+  }
+  .corner.tl { top: 1.2rem; left: 1.2rem; }
+  .corner.tr { top: 1.2rem; right: 1.2rem; transform: scaleX(-1); }
+  .corner.bl { bottom: 1.2rem; left: 1.2rem; transform: scaleY(-1); }
+  .corner.br { bottom: 1.2rem; right: 1.2rem; transform: scale(-1); }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="particles" id="particles"></div>
+<div class="shimmer"></div>
+
+<!-- Corner marks -->
+<div class="corner tl">
+  <svg viewBox="0 0 44 44" fill="none">
+    <line x1="0" y1="0" x2="28" y2="0" stroke="#4aab6d" stroke-width="0.8"/>
+    <line x1="0" y1="0" x2="0" y2="28" stroke="#4aab6d" stroke-width="0.8"/>
+    <line x1="0" y1="0" x2="12" y2="12" stroke="#d4890a" stroke-width="0.5" opacity="0.6"/>
+  </svg>
+</div>
+<div class="corner tr">
+  <svg viewBox="0 0 44 44" fill="none">
+    <line x1="0" y1="0" x2="28" y2="0" stroke="#4aab6d" stroke-width="0.8"/>
+    <line x1="0" y1="0" x2="0" y2="28" stroke="#4aab6d" stroke-width="0.8"/>
+    <line x1="0" y1="0" x2="12" y2="12" stroke="#d4890a" stroke-width="0.5" opacity="0.6"/>
+  </svg>
+</div>
+<div class="corner bl">
+  <svg viewBox="0 0 44 44" fill="none">
+    <line x1="0" y1="0" x2="28" y2="0" stroke="#4aab6d" stroke-width="0.8"/>
+    <line x1="0" y1="0" x2="0" y2="28" stroke="#4aab6d" stroke-width="0.8"/>
+    <line x1="0" y1="0" x2="12" y2="12" stroke="#d4890a" stroke-width="0.5" opacity="0.6"/>
+  </svg>
+</div>
+<div class="corner br">
+  <svg viewBox="0 0 44 44" fill="none">
+    <line x1="0" y1="0" x2="28" y2="0" stroke="#4aab6d" stroke-width="0.8"/>
+    <line x1="0" y1="0" x2="0" y2="28" stroke="#4aab6d" stroke-width="0.8"/>
+    <line x1="0" y1="0" x2="12" y2="12" stroke="#d4890a" stroke-width="0.5" opacity="0.6"/>
+  </svg>
+</div>
+
+<div class="screen">
+
+  <!-- TOP: Identity -->
+  <div class="top">
+
+    <!-- Soulbearer Glyph — eye shape with interlocking ribbons and amber center -->
+    <svg class="glyph" viewBox="0 0 240 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="centerAmber" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#f0a830" stop-opacity="1"/>
+          <stop offset="40%" stop-color="#d4890a" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#2d7a4a" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#0a2018" stop-opacity="1"/>
+          <stop offset="100%" stop-color="#020408" stop-opacity="1"/>
+        </radialGradient>
+      </defs>
+
+      <!-- Outer diamond frame -->
+      <path d="M120 8 L232 60 L120 112 L8 60 Z"
+            stroke="#2d7a4a" stroke-width="1" fill="none" opacity="0.6"/>
+
+      <!-- Star points — cardinal -->
+      <line x1="120" y1="8"   x2="120" y2="0"   stroke="#4aab6d" stroke-width="1.2"/>
+      <line x1="120" y1="112" x2="120" y2="120"  stroke="#4aab6d" stroke-width="1.2"/>
+      <line x1="8"   y1="60"  x2="0"   y2="60"   stroke="#4aab6d" stroke-width="1.2"/>
+      <line x1="232" y1="60"  x2="240" y2="60"   stroke="#4aab6d" stroke-width="1.2"/>
+
+      <!-- Star points — diagonal -->
+      <line x1="176" y1="24" x2="184" y2="16" stroke="#2d7a4a" stroke-width="0.8" opacity="0.7"/>
+      <line x1="64"  y1="24" x2="56"  y2="16" stroke="#2d7a4a" stroke-width="0.8" opacity="0.7"/>
+      <line x1="176" y1="96" x2="184" y2="104" stroke="#2d7a4a" stroke-width="0.8" opacity="0.7"/>
+      <line x1="64"  y1="96" x2="56"  y2="104" stroke="#2d7a4a" stroke-width="0.8" opacity="0.7"/>
+
+      <!-- Eye shape -->
+      <path d="M8 60 Q80 15 120 15 Q160 15 232 60 Q160 105 120 105 Q80 105 8 60 Z"
+            fill="url(#eyeGlow)" stroke="#4aab6d" stroke-width="1.2" opacity="0.8"/>
+
+      <!-- Interlocking ribbon — top arc -->
+      <path d="M60 60 Q90 35 120 38 Q150 35 180 60"
+            stroke="#b8d4e8" stroke-width="2.5" fill="none" opacity="0.7"
+            stroke-linecap="round"/>
+
+      <!-- Interlocking ribbon — bottom arc -->
+      <path d="M60 60 Q90 85 120 82 Q150 85 180 60"
+            stroke="#4aab6d" stroke-width="2.5" fill="none" opacity="0.7"
+            stroke-linecap="round"/>
+
+      <!-- Cross spine -->
+      <line x1="120" y1="20" x2="120" y2="100" stroke="#2d7a4a" stroke-width="0.8" opacity="0.5"/>
+      <line x1="60"  y1="60" x2="180" y2="60"  stroke="#2d7a4a" stroke-width="0.8" opacity="0.3"/>
+
+      <!-- Inner knotwork left -->
+      <path d="M75 60 Q85 48 100 55 Q85 62 75 60 Z"
+            stroke="#b8d4e8" stroke-width="1" fill="none" opacity="0.5"/>
+      <!-- Inner knotwork right -->
+      <path d="M165 60 Q155 48 140 55 Q155 62 165 60 Z"
+            stroke="#b8d4e8" stroke-width="1" fill="none" opacity="0.5"/>
+
+      <!-- Center amber glow -->
+      <circle cx="120" cy="60" r="18" fill="url(#centerAmber)" opacity="0.6"/>
+      <circle cx="120" cy="60" r="8"  fill="#d4890a" opacity="0.5"/>
+      <circle cx="120" cy="60" r="3.5" fill="#f0e8c0" opacity="0.95"/>
+
+      <!-- Diamond tips at cardinal points -->
+      <polygon points="120,0 122.5,5 120,8 117.5,5"   fill="#f0a830" opacity="0.9"/>
+      <polygon points="120,120 122.5,115 120,112 117.5,115" fill="#f0a830" opacity="0.9"/>
+      <polygon points="0,60 5,57.5 8,60 5,62.5"       fill="#4aab6d" opacity="0.9"/>
+      <polygon points="240,60 235,57.5 232,60 235,62.5" fill="#4aab6d" opacity="0.9"/>
+    </svg>
+
+    <div class="order-name">Soulbearer</div>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-diamond"></div>
+      <div class="divider-line right"></div>
+    </div>
+
+    <div class="surges">Truthwatcher · Edgedancer · Elsecaller</div>
+
+  </div>
+
+  <!-- MIDDLE: Daily Oath -->
+  <div class="middle">
+    <div class="oath-number" id="oath-number"></div>
+    <div class="oath-wrap">
+      <div class="oath-text" id="oath-text"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM: Date + First Ideal -->
+  <div class="bottom">
+    <div class="bottom-divider"></div>
+    <div class="date-text" id="date-text"></div>
+    <div class="first-ideal">Life before death · Strength before weakness · Journey before destination</div>
+  </div>
+
+</div>
+
+<script>
+  const oaths = [
+    "I will seek knowledge not to prove my worth, but to serve those who need it.",
+    "I will remember that understanding myself makes me a clearer vessel for understanding others.",
+    "I will not confuse the pursuit of perfection with the presence of competence.",
+    "I will step through the hard door, because someone on the other side needs what I carry.",
+    "I will hold the boundary between what I can carry and what belongs to someone else.",
+    "I will remember that my competence is true, even when doubt speaks louder than the evidence.",
+    "I will share what I know, even before I am certain it is enough.",
+    "I will make sure that every person I serve knows they are not facing this alone."
+  ];
+
+  const today = new Date();
+  const start = new Date(today.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((today - start) / 86400000);
+  const idx = dayOfYear % oaths.length;
+
+  document.getElementById('oath-text').textContent = oaths[idx];
+  document.getElementById('oath-number').textContent = `Oath ${idx + 1} of ${oaths.length}`;
+
+  const dateStr = today.toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric'
+  });
+  document.getElementById('date-text').textContent = dateStr.toUpperCase();
+
+  // Particles
+  const container = document.getElementById('particles');
+  const colors = ['#4aab6d', '#2d7a4a', '#d4890a', '#b8d4e8'];
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 2.5 + 0.5;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    p.style.cssText = `
+      width: ${size}px;
+      height: ${size}px;
+      left: ${Math.random() * 100}%;
+      background: ${color};
+      animation-duration: ${Math.random() * 18 + 14}s;
+      animation-delay: ${Math.random() * -25}s;
+      opacity: ${Math.random() * 0.3 + 0.05};
+    `;
+    container.appendChild(p);
+  }
+</script>
+</body>
+</html>
